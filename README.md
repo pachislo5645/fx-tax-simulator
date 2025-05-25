@@ -1,63 +1,128 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>海外FX税金シミュレーター</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>海外FX 税金計算シミュレーター（詳細版）</title>
   <style>
-    body { font-family: sans-serif; padding: 1em; }
-    input, button { margin: 0.5em 0; padding: 0.5em; width: 100%; max-width: 300px; }
-    #result { margin-top: 1em; font-weight: bold; }
+    body {
+      font-family: 'Helvetica Neue', sans-serif;
+      background: #f4f2ee;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 60px auto;
+      background: #fff;
+      padding: 40px 30px;
+      border-radius: 18px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      color: #2f2f2f;
+      margin-bottom: 24px;
+    }
+
+    label {
+      display: block;
+      text-align: left;
+      margin-top: 16px;
+      font-weight: bold;
+      color: #555;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 14px;
+      margin-top: 8px;
+      border-radius: 12px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      background-color: #fafafa;
+    }
+
+    input[type="number"]:focus {
+      outline: none;
+      border-color: #a88952;
+      background-color: #fff8f0;
+    }
+
+    button {
+      margin-top: 30px;
+      background: linear-gradient(to right, #bfa066, #a88952);
+      color: white;
+      padding: 14px 28px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    button:hover {
+      background: linear-gradient(to right, #a88952, #937944);
+    }
+
+    .result {
+      margin-top: 30px;
+      font-size: 1.1rem;
+      color: #333;
+      text-align: left;
+    }
+
+    .result p {
+      margin: 8px 0;
+    }
   </style>
 </head>
 <body>
-  <h3>海外FX税金シミュレーター</h3>
-  <p>年間の利益を入力してください（日本円）:</p>
+  <div class="container">
+    <h1>海外FX 税金計算シミュレーター（詳細版）</h1>
 
-  <input type="number" id="profit" placeholder="例: 1500000">
-  <button onclick="calcTax()">税金を計算する</button>
+    <label for="profit">年間利益（円）</label>
+    <input type="number" id="profit" placeholder="例：1200000" />
 
-  <div id="result"></div>
+    <label for="loss">損益通算額（円）</label>
+    <input type="number" id="loss" placeholder="例：-200000（マイナスの場合）" />
+
+    <label for="deduction">控除額（円）</label>
+    <input type="number" id="deduction" placeholder="例：100000" />
+
+    <label for="insurance">国民健康保険料率（%）</label>
+    <input type="number" id="insurance" placeholder="例：10（省略可）" />
+
+    <button onclick="calculate()">計算する</button>
+
+    <div id="result" class="result"></div>
+  </div>
 
   <script>
-    function calcTax() {
-      const profit = parseFloat(document.getElementById("profit").value);
-      const resultDiv = document.getElementById("result");
+    function calculate() {
+      const profit = parseFloat(document.getElementById('profit').value) || 0;
+      const loss = parseFloat(document.getElementById('loss').value) || 0;
+      const deduction = parseFloat(document.getElementById('deduction').value) || 0;
+      const insuranceRate = parseFloat(document.getElementById('insurance').value) || 0;
 
-      if (isNaN(profit) || profit <= 0) {
-        resultDiv.innerHTML = "有効な利益金額を入力してください。";
-        return;
-      }
+      const taxableIncome = Math.max(profit + loss - deduction, 0);
+      const incomeTaxRate = 0.20 + 0.0215;
+      const incomeTax = Math.floor(taxableIncome * incomeTaxRate);
+      const insurance = Math.floor(taxableIncome * (insuranceRate / 100));
+      const totalTax = incomeTax + insurance;
+      const taxPercent = profit > 0 ? ((totalTax / profit) * 100).toFixed(2) : 0;
 
-      const brackets = [
-        { limit: 1950000, rate: 0.05, deduction: 0 },
-        { limit: 3300000, rate: 0.10, deduction: 97500 },
-        { limit: 6950000, rate: 0.20, deduction: 427500 },
-        { limit: 9000000, rate: 0.23, deduction: 636000 },
-        { limit: 18000000, rate: 0.33, deduction: 1536000 },
-        { limit: 40000000, rate: 0.40, deduction: 2796000 },
-        { limit: Infinity, rate: 0.45, deduction: 4796000 }
-      ];
-
-      const basicDeduction = 480000;
-      const taxable = Math.max(0, profit - basicDeduction);
-
-      let incomeTax = 0;
-      for (let b of brackets) {
-        if (taxable <= b.limit) {
-          incomeTax = taxable * b.rate - b.deduction;
-          break;
-        }
-      }
-
-      incomeTax = Math.floor(incomeTax);
-      const residentTax = Math.floor(taxable * 0.10);
-      const totalTax = incomeTax + residentTax;
-
-      resultDiv.innerHTML = `
-        <p>課税所得: <strong>${taxable.toLocaleString()}円</strong></p>
-        <p>所得税（概算）: <strong>${incomeTax.toLocaleString()}円</strong></p>
-        <p>住民税（概算）: <strong>${residentTax.toLocaleString()}円</strong></p>
-        <p><strong>合計税額: ${totalTax.toLocaleString()}円</strong></p>
+      document.getElementById('result').innerHTML = `
+        <p>課税所得：${taxableIncome.toLocaleString()}円</p>
+        <p>所得税 + 復興税：約 ${incomeTax.toLocaleString()}円</p>
+        <p>国民健康保険料：約 ${insurance.toLocaleString()}円</p>
+        <p><strong>合計税額：約 ${totalTax.toLocaleString()}円</strong></p>
+        <p><strong>利益に対する税率：約 ${taxPercent}%</strong></p>
       `;
     }
   </script>

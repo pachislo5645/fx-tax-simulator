@@ -49,14 +49,18 @@ function calcTax() {
   // 住民税（10%一律想定）
   const residentTax = Math.floor(taxable * 0.10);
 
-  // 合計
+  // 合計税額
   const totalTax = incomeTax + residentTax;
+
+  // 税率（何％が税金になるか）
+  const taxRatePercent = ((totalTax / profit) * 100).toFixed(2);
 
   resultDiv.innerHTML = `
     <p>課税所得: <strong>${taxable.toLocaleString()}円</strong></p>
     <p>所得税（概算）: <strong>${incomeTax.toLocaleString()}円</strong></p>
     <p>住民税（概算）: <strong>${residentTax.toLocaleString()}円</strong></p>
     <p><strong>合計税額: ${totalTax.toLocaleString()}円</strong></p>
+    <p><strong>利益に対する税率: 約 ${taxRatePercent}%</strong></p>
   `;
 }
 </script>

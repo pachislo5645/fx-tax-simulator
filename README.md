@@ -1,69 +1,30 @@
-# fx-tax-simulator
-海外FX税金計算シミュレーター
 <!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
   <title>海外FX税金シミュレーター</title>
   <style>
-    body {
-      font-family: sans-serif;
-      padding: 20px;
-      background: #f9f9f9;
-      color: #333;
-    }
-
-    h3 {
-      color: #2c3e50;
-    }
-
-    input, button {
-      padding: 10px;
-      font-size: 16px;
-      margin-top: 10px;
-      width: 100%;
-      max-width: 300px;
-      box-sizing: border-box;
-    }
-
-    button {
-      background: #3498db;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #2980b9;
-    }
-
-    #result {
-      margin-top: 20px;
-      background: #fff;
-      padding: 15px;
-      border-radius: 5px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
-    }
+    body { font-family: sans-serif; padding: 1em; }
+    input, button { margin: 0.5em 0; padding: 0.5em; width: 100%; max-width: 300px; }
+    #result { margin-top: 1em; font-weight: bold; }
   </style>
 </head>
 <body>
-
   <h3>海外FX税金シミュレーター</h3>
-  <p>年間の利益金額（円）を入力してください：</p>
+  <p>年間の利益を入力してください（日本円）:</p>
 
   <input type="number" id="profit" placeholder="例: 1500000">
-  <button id="calcBtn">税金を計算する</button>
+  <button onclick="calcTax()">税金を計算する</button>
 
   <div id="result"></div>
 
   <script>
-    document.getElementById('calcBtn').addEventListener('click', function() {
-      const profitInput = document.getElementById("profit");
+    function calcTax() {
+      const profit = parseFloat(document.getElementById("profit").value);
       const resultDiv = document.getElementById("result");
-      const profit = parseFloat(profitInput.value);
 
       if (isNaN(profit) || profit <= 0) {
-        resultDiv.innerHTML = "<p style='color:red;'>有効な利益金額を入力してください。</p>";
+        resultDiv.innerHTML = "有効な利益金額を入力してください。";
         return;
       }
 
@@ -88,18 +49,17 @@
         }
       }
 
-      incomeTax = Math.max(0, Math.floor(incomeTax));
+      incomeTax = Math.floor(incomeTax);
       const residentTax = Math.floor(taxable * 0.10);
       const totalTax = incomeTax + residentTax;
 
       resultDiv.innerHTML = `
-        <p>課税所得：<strong>${taxable.toLocaleString()}円</strong></p>
-        <p>所得税（概算）：<strong>${incomeTax.toLocaleString()}円</strong></p>
-        <p>住民税（概算）：<strong>${residentTax.toLocaleString()}円</strong></p>
-        <p><strong>合計税額：${totalTax.toLocaleString()}円</strong></p>
+        <p>課税所得: <strong>${taxable.toLocaleString()}円</strong></p>
+        <p>所得税（概算）: <strong>${incomeTax.toLocaleString()}円</strong></p>
+        <p>住民税（概算）: <strong>${residentTax.toLocaleString()}円</strong></p>
+        <p><strong>合計税額: ${totalTax.toLocaleString()}円</strong></p>
       `;
-    });
+    }
   </script>
-
 </body>
 </html>

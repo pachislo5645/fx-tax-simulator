@@ -1,2 +1,105 @@
 # fx-tax-simulator
 海外FX税金計算シミュレーター
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>海外FX税金シミュレーター</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      background: #f9f9f9;
+      color: #333;
+    }
+
+    h3 {
+      color: #2c3e50;
+    }
+
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      margin-top: 10px;
+      width: 100%;
+      max-width: 300px;
+      box-sizing: border-box;
+    }
+
+    button {
+      background: #3498db;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #2980b9;
+    }
+
+    #result {
+      margin-top: 20px;
+      background: #fff;
+      padding: 15px;
+      border-radius: 5px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+
+  <h3>海外FX税金シミュレーター</h3>
+  <p>年間の利益金額（円）を入力してください：</p>
+
+  <input type="number" id="profit" placeholder="例: 1500000">
+  <button id="calcBtn">税金を計算する</button>
+
+  <div id="result"></div>
+
+  <script>
+    document.getElementById('calcBtn').addEventListener('click', function() {
+      const profitInput = document.getElementById("profit");
+      const resultDiv = document.getElementById("result");
+      const profit = parseFloat(profitInput.value);
+
+      if (isNaN(profit) || profit <= 0) {
+        resultDiv.innerHTML = "<p style='color:red;'>有効な利益金額を入力してください。</p>";
+        return;
+      }
+
+      const brackets = [
+        { limit: 1950000, rate: 0.05, deduction: 0 },
+        { limit: 3300000, rate: 0.10, deduction: 97500 },
+        { limit: 6950000, rate: 0.20, deduction: 427500 },
+        { limit: 9000000, rate: 0.23, deduction: 636000 },
+        { limit: 18000000, rate: 0.33, deduction: 1536000 },
+        { limit: 40000000, rate: 0.40, deduction: 2796000 },
+        { limit: Infinity, rate: 0.45, deduction: 4796000 }
+      ];
+
+      const basicDeduction = 480000;
+      const taxable = Math.max(0, profit - basicDeduction);
+
+      let incomeTax = 0;
+      for (let b of brackets) {
+        if (taxable <= b.limit) {
+          incomeTax = taxable * b.rate - b.deduction;
+          break;
+        }
+      }
+
+      incomeTax = Math.max(0, Math.floor(incomeTax));
+      const residentTax = Math.floor(taxable * 0.10);
+      const totalTax = incomeTax + residentTax;
+
+      resultDiv.innerHTML = `
+        <p>課税所得：<strong>${taxable.toLocaleString()}円</strong></p>
+        <p>所得税（概算）：<strong>${incomeTax.toLocaleString()}円</strong></p>
+        <p>住民税（概算）：<strong>${residentTax.toLocaleString()}円</strong></p>
+        <p><strong>合計税額：${totalTax.toLocaleString()}円</strong></p>
+      `;
+    });
+  </script>
+
+</body>
+</html>

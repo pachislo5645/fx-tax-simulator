@@ -90,13 +90,13 @@
     <input type="number" id="profit" placeholder="例：1200000" />
 
     <label for="loss">損益通算額（円）</label>
-    <input type="number" id="loss" placeholder="例：-200000（マイナスの場合）" />
+    <input type="number" id="loss" placeholder="例：-200000" />
 
     <label for="deduction">控除額（円）</label>
     <input type="number" id="deduction" placeholder="例：100000" />
 
     <label for="insurance">国民健康保険料率（%）</label>
-    <input type="number" id="insurance" placeholder="例：10（省略可）" />
+    <input type="number" id="insurance" placeholder="例：10" />
 
     <button onclick="calculate()">計算する</button>
 
@@ -111,7 +111,7 @@
       const insuranceRate = parseFloat(document.getElementById('insurance').value) || 0;
 
       const taxableIncome = Math.max(profit + loss - deduction, 0);
-      const incomeTaxRate = 0.20 + 0.0215;
+      const incomeTaxRate = 0.2215; // 20% 所得税 + 2.15% 復興税
       const incomeTax = Math.floor(taxableIncome * incomeTaxRate);
       const insurance = Math.floor(taxableIncome * (insuranceRate / 100));
       const totalTax = incomeTax + insurance;
